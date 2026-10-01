@@ -78,6 +78,22 @@ define('SYSTEM_DIR', ROOT_DIR . $system_path . DIRECTORY_SEPARATOR);
 define('APP_DIR', ROOT_DIR . $application_folder . DIRECTORY_SEPARATOR);
 define('PUBLIC_DIR', $public_folder);
 
+// Respond before routing so browser CORS preflight requests are accepted.
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+	$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+	$allowed_origin = getenv('ALLOW_ORIGIN') ?: '*';
+
+	if ($allowed_origin === '*' || $allowed_origin === $origin) {
+		header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
+		header('Access-Control-Allow-Credentials: true');
+	}
+	header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, X-RateLimit-*');
+	header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
+	header('Access-Control-Max-Age: 3600');
+	http_response_code(204);
+	exit;
+}
+
 /*
  * ------------------------------------------------------
  * Setup done? Then Hurray!
