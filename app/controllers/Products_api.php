@@ -12,14 +12,14 @@ class Products_api extends Controller
     public function index()
     {
         $this->api->require_method('GET');
-        $this->api->require_jwt();
+        $this->api->require_scope('read');
         $this->api->respond(['data' => $this->Product_model->order_by('id', 'DESC')]);
     }
 
     public function store()
     {
         $this->api->require_method('POST');
-        $this->api->require_jwt();
+        $this->api->require_scope('write');
         $data = $this->validated_product($this->api->body());
         $id = $this->Product_model->insert($data);
         $this->api->respond(['data' => $this->Product_model->find($id)], 201);
@@ -27,7 +27,7 @@ class Products_api extends Controller
 
     public function update($id)
     {
-        $this->api->require_jwt();
+        $this->api->require_scope('write');
         $product = $this->Product_model->find((int) $id);
         if (!$product) {
             $this->api->respond_error('Product not found.', 404);
@@ -40,7 +40,7 @@ class Products_api extends Controller
     public function destroy($id)
     {
         $this->api->require_method('DELETE');
-        $this->api->require_jwt();
+        $this->api->require_scope('delete');
         if (!$this->Product_model->find((int) $id)) {
             $this->api->respond_error('Product not found.', 404);
         }
