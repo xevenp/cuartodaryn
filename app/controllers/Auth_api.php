@@ -50,6 +50,7 @@ class Auth_api extends Controller
                 'id' => (int) $user['id'],
                 'username' => $user['username'],
                 'email' => $user['email'],
+                'role' => $user['role'],
             ],
             'tokens' => $this->api->issue_tokens([
                 'id' => (int) $user['id'],
