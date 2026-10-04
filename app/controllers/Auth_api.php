@@ -39,10 +39,26 @@ class Auth_api extends Controller
     {
         $this->api->require_method('POST');
         $body = $this->api->body();
-        $user = $this->User_model->find_by('email', $body['email'] ?? '');
+        $username = trim((string) ($body['username'] ?? ''));
+        $email = trim((string) ($body['email'] ?? ''));
+        $password = (string) ($body['password'] ?? '');
 
-        if (!$user || !(int) $user['is_active'] || !password_verify($body['password'] ?? '', $user['password'])) {
-            $this->api->respond_error('Invalid email or password.', 401);
+        if (($username === '' && $email === '') || $password === '') {
+            $this->api->respond_error('Username or email and password are required.', 422);
+        }
+
+        $user = null;
+
+        if ($username !== '') {
+            $user = $this->User_model->find_by('username', $username);
+        }
+
+        if (!$user && $email !== '') {
+            $user = $this->User_model->find_by('email', $email);
+        }
+
+        if (!$user || !(int) $user['is_active'] || !password_verify($password, $user['password'])) {
+            $this->api->respond_error('Invalid username/email or password.', 401);
         }
 
         $this->api->respond([
